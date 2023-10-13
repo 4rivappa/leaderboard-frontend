@@ -14,7 +14,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const backendUrl = "https://leaderboard-backend.vercel.app/";
+        const backendUrl = "https://leaderboard-backend.vercel.app";
         fetch(`https://api.monkeytype.com/users/${id}/profile`, {
           method: 'GET',
           mode: 'cors'
