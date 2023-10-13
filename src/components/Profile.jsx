@@ -4,6 +4,7 @@ import Skele from './Skele';
 import NavBar from './NavBar';
 import { useParams } from "react-router-dom";
 import Table from "./Table";
+import Notfound from "./Notfound";
 
 
 export default function Profile() {
@@ -13,18 +14,39 @@ export default function Profile() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const backendUrl = process.env.BACKEND_URL;
-        fetch(`${backendUrl}/profile/${id}`, {
+        const backendUrl = "http://localhost:3000";
+        fetch(`https://api.monkeytype.com/users/${id}/profile`, {
           method: 'GET',
           mode: 'cors'
         })
           .then(res => res.json())
           .then(res => {
-            if (res.message === 'success') {
-              setProfile(res.body);
+            if (res.message === 'Profile retrieved') {
+              var new_profile_data = {}
+              new_profile_data.name = res.data.name;
+              new_profile_data.dId = res.data.discordId;
+              new_profile_data.avatar = res.data.discordAvatar;
+
+              const user_id = res.data.uid;
+              fetch(`${backendUrl}/profile/${user_id}`, {
+                method: 'GET',
+                mode: 'cors'
+              })
+                .then(res => res.json())
+                .then(res => {
+                  if (res.message === 'success') {
+                    new_profile_data.fifteen = res.body.fifteen;
+                    new_profile_data.sixty = res.body.sixty;
+
+                    setProfile(new_profile_data);
+                  }
+                  else {
+                    setProfile({name: ""});
+                  }
+                })
             }
             else {
-              setProfile({});
+              setProfile({name: ""});
             }
           })
       } catch (err) {
@@ -58,7 +80,9 @@ export default function Profile() {
              <Table profile={profile} time={60} rowsArray={profile.sixty}/>
           </div>
         </>)
-        : (<Skele />)
+        : profile && profile.name == "" ? 
+           (<Notfound />)
+            :(<Skele />)
       }
     </>
   )
